@@ -7,7 +7,9 @@ const port = process.env.PORT || 3000; // Use the port specified by Railway or d
 app.get('/', async (req, res) => {
   try {
     // Initialize the browser
-    const browser = await puppeteer.launch({ args: ['--no-sandbox'] }); // Add '--no-sandbox' option for running in Railway
+    const browser = await puppeteer.launch({
+      args: ['--no-sandbox', '--disable-dev-shm-usage'] // Add '--disable-dev-shm-usage' option for running in Render
+    });
 
     const page = await browser.newPage();
 
