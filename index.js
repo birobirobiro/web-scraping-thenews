@@ -2,21 +2,22 @@ const express = require('express');
 const puppeteer = require('puppeteer');
 
 const app = express();
-const port = 3000; // porta para o servidor Express
+const port = process.env.PORT || 3000; // Use the port specified by Railway or default to 3000
 
 app.get('/', async (req, res) => {
   try {
-    // Inicializar o navegador
-    const browser = await puppeteer.launch();
+    // Initialize the browser
+    const browser = await puppeteer.launch({ args: ['--no-sandbox'] }); // Add '--no-sandbox' option for running in Railway
+
     const page = await browser.newPage();
 
-    // Navegar para a URL desejada
+    // Navigate to the desired URL
     await page.goto('https://thenewscc.com.br/category/tecnologia/');
 
-    // Aguardar a renderização completa da página
+    // Wait for the page to fully load
     await page.waitForSelector('#infinite-wrap');
 
-    // Extrair os dados desejados
+    // Extract the desired data
     const data = await page.evaluate(() => {
       const titleElements = document.querySelectorAll('.entry-title > a');
       const articles = [];
@@ -28,17 +29,17 @@ app.get('/', async (req, res) => {
       return articles;
     });
 
-    // Enviar os dados como resposta
+    // Send the data as response
     res.send(data);
 
-    // Fechar o navegador
+    // Close the browser
     await browser.close();
   } catch (error) {
     console.error(error);
-    res.status(500).send('Ocorreu um erro no servidor.');
+    res.status(500).send('Internal Server Error.');
   }
 });
 
 app.listen(port, () => {
-  console.log(`Servidor Express em execução na porta ${port}`);
+  console.log(`Express server is running on port ${port}`);
 });
